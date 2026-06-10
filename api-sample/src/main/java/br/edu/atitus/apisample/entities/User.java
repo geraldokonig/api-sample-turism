@@ -1,5 +1,6 @@
 package br.edu.atitus.apisample.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.UUID;
@@ -32,6 +33,7 @@ public class User {
     private String email;
 
     @Column(length = 100, nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
