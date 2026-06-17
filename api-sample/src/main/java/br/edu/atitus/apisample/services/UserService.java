@@ -2,13 +2,16 @@ package br.edu.atitus.apisample.services;
 
 import br.edu.atitus.apisample.entities.User;
 import br.edu.atitus.apisample.repositories.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 // Esta classe será um Bean do Spring
 // Ou seja, os objetos serão criados e gerenciados pelo Spring IOC
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     // Objetos UserService precisam de um UserRepository para funcionar
     // UserService DEPENDE UserRepository
     // UserRepository é uma dependência do UserService
@@ -52,4 +55,9 @@ public class UserService {
         return repository.save(newUser);
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return repository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com este e-mail!"));
+    }
 }
