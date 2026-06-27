@@ -16,6 +16,9 @@ public class UserService implements UserDetailsService {
     private final UserRepository repository;
     private final PasswordEncoder encoder;
 
+    // Regex para e-mail: exige texto + @ + texto + . + texto (Garante dois ou mais domínios pós-@)
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+
     // Expressão Regular para conferir se a senha tem pelo menos 1 maiúscula, 1 minúscula e 1 número
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$");
 
@@ -36,18 +39,9 @@ public class UserService implements UserDetailsService {
             throw new Exception("E-mail informado inválido!");
         newUser.setEmail(newUser.getEmail().trim().toLowerCase());
 
-        // VALIDAÇÃO DO FORMATO DE E-MAIL (Deve conter @ e dois ou mais domínios após o @, ex: gmail.com possui gmail e com)
-        if (!newUser.getEmail().contains("@")) {
-            throw new Exception("E-mail deve conter @!");
-        }
-        String[] emailParts = newUser.getEmail().split("@");
-        if (emailParts.length < 2 || !emailParts[1].contains(".")) {
-            throw new Exception("E-mail deve conter domínios válidos!");
-        }
-        // Conta os pedaços do domínio separados por ponto (ex: gmail.com vira [gmail, com] = 2 partes)
-        String[] dominios = emailParts[1].split("\\.");
-        if (dominios.length < 2) {
-            throw new Exception("E-mail deve conter dois ou mais domínios (ex: gmail.com ou bol.com.br)!");
+        // VALIDAÇÃO DO FORMATO DE E-MAIL VIA REGEX (Atendendo ao critério obrigatório)
+        if (!EMAIL_PATTERN.matcher(newUser.getEmail()).matches()) {
+            throw new Exception("E-mail inválido! Deve conter '@' e dois ou mais domínios (ex: gmail.com ou bol.com.br).");
         }
 
         if (repository.existsByEmail(newUser.getEmail()))
